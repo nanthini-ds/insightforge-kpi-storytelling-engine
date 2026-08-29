@@ -1,81 +1,228 @@
-# InsightForge — KPI Storytelling Engine (Working Demo)
+InsightForge — KPI Storytelling Engine
 
-A runnable prototype of the pipeline described in your deck: **Detect → Correlate →
-Recommend → Narrate**. It explains a KPI move in plain language, grounded in real
-correlated evidence, instead of you writing the story by hand.
+Round 2 Prototype README
 
-## What's inside
+Turn KPI movements into evidence-grounded business explanations and recommended next actions.
 
-| File | Pipeline stage | What it does |
-|---|---|---|
-| `data_gen.py` | — | Generates synthetic daily revenue (4 regions), support tickets, pricing/inventory events, and news headlines. Injects one realistic incident: a 3-day SKU-2291 stockout in the West region compounded by a competitor promo — matching the exact example on your "Solution" slide. |
-| `detect.py` | **1. Detect** | Decomposes each region's revenue into trend + weekly seasonality, computes a rolling z-score on the residual, and flags statistically real shifts (not routine weekly noise). |
-| `correlate.py` | **2. Correlate** | For a flagged incident, pulls matching structured events (pricing/inventory log) and unstructured signals (support ticket spike + top terms, relevant news headlines) in a date/region window around it. |
-| `narrate.py` | **3. Recommend + 4. Narrate** | Sends the anomaly summary + evidence bundle to Claude with a strict JSON-brief prompt: headline, plain-language explanation, confidence level (with an explicit "not enough evidence" path), and 2-3 ranked next steps. Falls back to a deterministic template if no API key is set, so the demo still runs offline. |
-| `app.py` | UI | Streamlit app tying all four stages together with an interactive chart and one-click brief generation. |
+1. Overview
 
-## Setup
+InsightForge is a working prototype for Business Intelligence that detects material KPI movements, correlates them with supporting business signals, and converts the evidence into persona-aware recommendations and plain-language narratives.
 
-```bash
+Core pipeline:
+
+Detect → Correlate → Recommend → Narrate
+
+The prototype is intentionally designed around illustrative/synthetic data so the core mechanism can be demonstrated without proprietary enterprise data.
+
+2. Problem
+
+Business teams can see that a KPI has moved, but understanding why it moved and what to do next often requires manual investigation across multiple data sources.
+
+InsightForge addresses this gap by connecting KPI anomaly detection with structured and unstructured evidence, confidence-aware reasoning, and actionable recommendations.
+
+3. Solution
+
+Detect
+
+Decomposes regional revenue into trend and weekly seasonality.
+
+Computes residual rolling z-scores.
+
+Flags statistically meaningful shifts rather than routine weekly noise.
+
+Correlate
+
+Searches the incident window for matching pricing/inventory events.
+
+Examines support-ticket spikes and common terms.
+
+Uses relevant news signals when available.
+
+Recommend
+
+Converts the detected movement and evidence into practical next steps.
+
+Narrate
+
+Generates a concise business brief.
+
+Includes explanation and confidence.
+
+Provides an explicit low-evidence path instead of inventing a cause.
+
+Uses Claude when configured, with a deterministic offline fallback.
+
+4. Architecture
+
+Synthetic / Uploaded Data
+          |
+          v
+      Detect
+          |
+          v
+     Correlate
+          |
+          v
+ Confidence Assessment
+          |
+          v
+     Recommend
+          |
+          v
+      Narrate
+          |
+          v
+ Executive / Persona-aware Brief
+
+5. Repository Structure
+
+insightforge-kpi-storytelling-engine/
+├── app.py
+├── data_gen.py
+├── detect.py
+├── correlate.py
+├── narrate.py
+├── requirements.txt
+├── README.md
+└── prototype screenshots
+
+6. Demo Data
+
+data_gen.py generates illustrative daily data for four regions:
+
+Revenue
+
+Support tickets
+
+Pricing/inventory events
+
+News headlines
+
+The generator injects a realistic incident involving a 3-day SKU-2291 stockout in the West region compounded by a competitor promotion.
+
+7. Installation
+
 pip install -r requirements.txt
-```
 
-## Run
+8. Run
 
-```bash
 streamlit run app.py
-```
 
-This opens a browser at `http://localhost:8501`. Pick **West** region and the flagged
-incident around late June to see the exact stockout + competitor-promo story from your
-deck reconstructed automatically from the underlying data.
+The application opens locally at:
 
-## Using Claude for narration (recommended for the demo)
+http://localhost:8501
 
-Without an API key the app still works end-to-end using a deterministic fallback
-template (so it's never broken during judging). To have Claude actually write the
-briefs:
+9. Claude Narration
 
-```bash
-export ANTHROPIC_API_KEY=sk-ant-...
+The prototype works without an API key using a deterministic fallback template.
+
+To enable Claude-generated briefs:
+
+export ANTHROPIC_API_KEY=your_api_key_here
 streamlit run app.py
-```
 
-The sidebar shows which mode is active (🟢 Claude API / 🟡 Offline fallback).
+Never commit API keys to GitHub.
 
-## Screenshots
+10. Key Features
 
-Screenshots can be stored in `screenshots/` using these placeholders:
+KPI anomaly detection
 
-![Dashboard](screenshots/dashboard.png)
-![Detect](screenshots/detect.png)
-![Correlate](screenshots/correlate.png)
-![Executive Brief](screenshots/executive-brief.png)
-![Persona Switch](screenshots/persona-switch.png)
+Trend and seasonality analysis
 
-## UI Improvements
+Cross-signal correlation
 
-The dashboard keeps the dark theme and now includes responsive KPI cards, clearer
-section dividers, icon-led status cues, persona-aware narratives, runtime metrics,
-and a downloadable executive brief PDF.
+Structured + unstructured evidence
 
-## Extending this toward production
+Persona-aware views
 
-- **Swap `data_gen.py` for real connectors**: Power BI/Tableau REST API for KPIs,
-  Zendesk/Freshdesk API for tickets, an internal events log, a news API.
-- **Swap the keyword-scoring in `correlate.py` for embeddings/BM25** hybrid search
-  over each source system for better recall on paraphrased signals.
-- **Swap the STL-ish detector in `detect.py`** for Prophet, an ESD test, or your BI
-  tool's native anomaly detection if it exposes one via API — the rest of the pipeline
-  is decoupled from the detection method, it just needs an incident window.
-- **Add a feedback loop**: let analysts mark a brief "helpful / not helpful" and use
-  that to tune the confidence thresholds over time.
+Configurable anomaly sensitivity
 
-## Why this shape
+Confidence-aware narratives
 
-- Each stage is a separate, independently testable module — mirrors the 4-step
-  architecture on your "Our Solution" slide and makes it easy to demo (or swap) one
-  stage at a time.
-- The narration prompt explicitly instructs Claude to flag low-confidence/ambiguous
-  cases rather than hallucinate a cause — this was called out as a requirement in your
-  deck ("When evidence is ambiguous, it flags the uncertainty instead of guessing").
+Claude narration
+
+Offline fallback
+
+Executive brief generation
+
+11. Prototype Screenshots
+
+The repository contains screenshots for:
+
+Detect stage
+
+Correlate stage
+
+Generated Executive Brief
+
+Sales Manager view
+
+Regional Director view
+
+12. Current Scope & Limitations
+
+Uses synthetic/illustrative data rather than live enterprise connectors.
+
+Correlation is lightweight and can be extended with hybrid retrieval.
+
+Production deployment would require stronger governance, authentication/authorization, monitoring, and source connectors.
+
+The anomaly detector can be replaced with other statistical or BI-native methods.
+
+13. Production Extension
+
+Future development can include:
+
+BI/warehouse API connectors.
+
+Customer-support system connectors.
+
+Internal event-log and approved news connectors.
+
+Hybrid embedding/BM25 retrieval.
+
+Analyst feedback loops.
+
+Stronger lineage and access controls.
+
+Runtime telemetry, model-call and cost monitoring.
+
+Continuous evaluation and confidence calibration.
+
+14. Recommended Demo Flow
+
+Select region and persona.
+
+Show actual revenue versus expected trend.
+
+Demonstrate the flagged anomaly.
+
+Open Correlate and show supporting evidence.
+
+Explain the confidence level.
+
+Generate the executive brief.
+
+Show persona-specific recommendations.
+
+Demonstrate offline fallback if required.
+
+15. Round 2 Alignment
+
+The prototype demonstrates the BusinessIntelligence.ai direction through:
+
+KPI movement detection
+
+Cross-source evidence correlation
+
+Persona-aware narratives
+
+Confidence handling
+
+Action recommendations
+
+Further validation/extension areas include multiple connected KPIs/data sources, semantic definitions, sparse-history handling, role-based security, lineage, LLM/non-LLM separation, and runtime telemetry.
+
+Repository
+
+https://github.com/nanthini-ds/insightforge-kpi-storytelling-engine
