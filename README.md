@@ -1,82 +1,106 @@
-InsightForge — KPI Storytelling Engine
+# InsightForge — KPI Storytelling Engine
 
-Round 2 Prototype README
+**InsightForge** is a working prototype that turns KPI movements into evidence-grounded business explanations and actionable recommendations.
 
-Turn KPI movements into evidence-grounded business explanations and recommended next actions.
+It follows a simple four-stage pipeline:
 
-1. Overview
+**Detect → Correlate → Recommend → Narrate**
 
-InsightForge is a working prototype for Business Intelligence that detects material KPI movements, correlates them with supporting business signals, and converts the evidence into persona-aware recommendations and plain-language narratives.
+Instead of manually investigating why a KPI changed, InsightForge automatically detects unusual movements, connects them with supporting business signals, evaluates confidence, and generates a concise business brief.
 
-Core pipeline:
+---
 
-Detect → Correlate → Recommend → Narrate
+## 1. Overview
 
-The prototype is intentionally designed around illustrative/synthetic data so the core mechanism can be demonstrated without proprietary enterprise data.
+InsightForge is a prototype for Business Intelligence that detects material KPI movements, correlates them with structured and unstructured evidence, and converts the findings into persona-aware recommendations and plain-language narratives.
 
-2. Problem
+The prototype uses synthetic data so the complete workflow can be demonstrated without requiring proprietary enterprise data.
 
-Business teams can see that a KPI has moved, but understanding why it moved and what to do next often requires manual investigation across multiple data sources.
+---
 
-InsightForge addresses this gap by connecting KPI anomaly detection with structured and unstructured evidence, confidence-aware reasoning, and actionable recommendations.
+## 2. Problem
 
-3. Solution
+Business teams can easily see that a KPI has changed, but understanding **why it changed** and **what action should be taken next** often requires manual investigation across multiple data sources.
 
-Detect
+InsightForge addresses this problem by combining:
 
-Decomposes regional revenue into trend and weekly seasonality.
+* KPI anomaly detection
+* Cross-source evidence correlation
+* Confidence-aware reasoning
+* Action recommendations
+* Plain-language business narratives
 
-Computes residual rolling z-scores.
+---
 
-Flags statistically meaningful shifts rather than routine weekly noise.
+## 3. Solution
 
-Correlate
+### Detect
 
-Searches the incident window for matching pricing/inventory events.
+* Decomposes regional revenue into trend and weekly seasonality.
+* Calculates rolling z-scores on residuals.
+* Identifies statistically meaningful KPI shifts.
+* Reduces false alerts caused by normal weekly patterns.
 
-Examines support-ticket spikes and common terms.
+### Correlate
 
-Uses relevant news signals when available.
+For a detected incident, the system searches the surrounding time and region window for:
 
-Recommend
+* Pricing events
+* Inventory events
+* Support-ticket spikes
+* Common support-ticket terms
+* Relevant news signals
 
-Converts the detected movement and evidence into practical next steps.
+### Recommend
 
-Narrate
+Converts the detected KPI movement and supporting evidence into practical next steps.
 
-Generates a concise business brief.
+### Narrate
 
-Includes explanation and confidence.
+Generates a concise business brief containing:
 
-Provides an explicit low-evidence path instead of inventing a cause.
+* Headline
+* Plain-language explanation
+* Confidence level
+* Supporting evidence
+* 2–3 ranked next actions
+* An explicit "not enough evidence" path when evidence is insufficient
 
-Uses Claude when configured, with a deterministic offline fallback.
+Claude can be used for AI-generated narration. If no API key is available, the application automatically uses a deterministic offline fallback.
 
-4. Architecture
+---
 
+## 4. Architecture
+
+```text
 Synthetic / Uploaded Data
           |
           v
-      Detect
+       Detect
           |
           v
-     Correlate
+      Correlate
           |
           v
  Confidence Assessment
           |
           v
-     Recommend
+      Recommend
           |
           v
-      Narrate
+       Narrate
           |
           v
- Executive / Persona-aware Brief
+Executive / Persona-aware Brief
+```
 
-5. Repository Structure
+---
 
+## 5. Repository Structure
+
+```text
 insightforge-kpi-storytelling-engine/
+│
 ├── app.py
 ├── data_gen.py
 ├── detect.py
@@ -84,145 +108,295 @@ insightforge-kpi-storytelling-engine/
 ├── narrate.py
 ├── requirements.txt
 ├── README.md
-└── prototype screenshots
+└── screenshots/
+```
 
-6. Demo Data
+---
 
-data_gen.py generates illustrative daily data for four regions:
+## 6. What's Inside
 
-Revenue
+| File               | Pipeline Stage      | Description                                                                                               |
+| ------------------ | ------------------- | --------------------------------------------------------------------------------------------------------- |
+| `data_gen.py`      | Data Generation     | Generates synthetic revenue, support tickets, pricing/inventory events, and news headlines.               |
+| `detect.py`        | Detect              | Detects statistically meaningful KPI movements using trend, seasonality, residuals, and rolling z-scores. |
+| `correlate.py`     | Correlate           | Connects detected incidents with pricing, inventory, support, and news evidence.                          |
+| `narrate.py`       | Recommend + Narrate | Generates evidence-grounded explanations, confidence levels, and recommended actions.                     |
+| `app.py`           | UI                  | Streamlit application connecting all pipeline stages.                                                     |
+| `requirements.txt` | Setup               | Contains the required Python dependencies.                                                                |
 
-Support tickets
+---
 
-Pricing/inventory events
+## 7. Demo Data
 
-News headlines
+The prototype generates illustrative daily data for four regions:
 
-The generator injects a realistic incident involving a 3-day SKU-2291 stockout in the West region compounded by a competitor promotion.
+* Revenue
+* Support tickets
+* Pricing events
+* Inventory events
+* News headlines
 
-7. Installation
+The generator includes a realistic example incident:
 
+**A 3-day SKU-2291 stockout in the West region combined with a competitor promotion.**
+
+This incident demonstrates how InsightForge can automatically reconstruct a plausible business explanation from multiple evidence sources.
+
+---
+
+## 8. Installation
+
+Install the required dependencies:
+
+```bash
 pip install -r requirements.txt
+```
 
-8. Run
+---
 
+## 9. Run the Application
+
+Start the Streamlit application:
+
+```bash
 streamlit run app.py
+```
 
-The application opens locally at:
+The application will open locally at:
 
+```text
 http://localhost:8501
+```
 
-9. Claude Narration
+### Recommended Demo
 
-The prototype works without an API key using a deterministic fallback template.
+1. Select the **West** region.
+2. Select a persona.
+3. Show the revenue movement.
+4. Open the detected anomaly.
+5. Explore the correlated evidence.
+6. Review the confidence level.
+7. Generate the executive brief.
+8. Show persona-specific recommendations.
 
-To enable Claude-generated briefs:
+---
 
+## 10. Claude Narration
+
+InsightForge can use Claude to generate natural-language business briefs.
+
+The application also works without an API key using a deterministic offline fallback.
+
+To enable Claude-generated narration, configure the environment variable:
+
+```bash
 export ANTHROPIC_API_KEY=your_api_key_here
+```
+
+Then run:
+
+```bash
 streamlit run app.py
+```
 
-Never commit API keys to GitHub.
+The sidebar indicates the active mode:
 
-10. Key Features
+* 🟢 Claude API
+* 🟡 Offline fallback
 
-KPI anomaly detection
+**Never commit API keys or other secrets to GitHub.**
 
-Trend and seasonality analysis
+---
 
-Cross-signal correlation
+## 11. Key Features
 
-Structured + unstructured evidence
+* KPI anomaly detection
+* Trend and seasonality analysis
+* Cross-signal correlation
+* Structured + unstructured evidence
+* Confidence-aware narratives
+* Persona-aware views
+* Action recommendations
+* Claude-powered narration
+* Offline fallback
+* Executive brief generation
+* Configurable anomaly sensitivity
+* Downloadable executive brief
 
-Persona-aware views
+---
 
-Configurable anomaly sensitivity
+## 12. Prototype Screenshots
 
-Confidence-aware narratives
+The prototype includes screenshots demonstrating:
 
-Claude narration
+* KPI movement detection
+* Detect stage
+* Correlate stage
+* Generated Executive Brief
+* Sales Manager view
+* Regional Director view
+* Persona switching
 
-Offline fallback
+Screenshots can be stored inside the `screenshots/` directory.
 
-Executive brief generation
+Example:
 
-11. Prototype Screenshots
+```text
+screenshots/
+├── dashboard.png
+├── detect.png
+├── correlate.png
+├── executive-brief.png
+└── persona-switch.png
+```
 
-The repository contains screenshots for:
+---
 
-Detect stage
+## 13. Current Scope & Limitations
 
-Correlate stage
+The current prototype uses synthetic and illustrative data.
 
-Generated Executive Brief
+Limitations include:
 
-Sales Manager view
+* No live enterprise data connectors
+* Lightweight correlation logic
+* Synthetic KPI and event data
+* Prototype-level authentication and governance
+* Limited historical data handling
 
-Regional Director view
+The anomaly detector can also be replaced with other statistical or BI-native methods.
 
-12. Current Scope & Limitations
+---
 
-Uses synthetic/illustrative data rather than live enterprise connectors.
+## 14. Production Extension
 
-Correlation is lightweight and can be extended with hybrid retrieval.
+The prototype can be extended toward production by adding:
 
-Production deployment would require stronger governance, authentication/authorization, monitoring, and source connectors.
+### Data Connectors
 
-The anomaly detector can be replaced with other statistical or BI-native methods.
+* Power BI / Tableau REST APIs
+* Zendesk / Freshdesk APIs
+* Internal event logs
+* Approved news APIs
+* Enterprise data warehouses
 
-13. Production Extension
+### Advanced Retrieval
 
-Future development can include:
+The keyword-based correlation system can be replaced with:
 
-BI/warehouse API connectors.
+* Embedding-based retrieval
+* BM25 search
+* Hybrid retrieval
+* Semantic search
 
-Customer-support system connectors.
+### Advanced Detection
 
-Internal event-log and approved news connectors.
+The current detector can be replaced with:
 
-Hybrid embedding/BM25 retrieval.
+* Prophet
+* ESD-based detection
+* BI-native anomaly detection
+* Other statistical forecasting methods
 
-Analyst feedback loops.
+### Feedback Loop
 
-Stronger lineage and access controls.
+Analysts can provide feedback such as:
 
-Runtime telemetry, model-call and cost monitoring.
+* Helpful
+* Not helpful
 
-Continuous evaluation and confidence calibration.
+This feedback can be used to improve confidence thresholds and recommendation quality.
 
-14. Recommended Demo Flow
+### Enterprise Readiness
 
-Select region and persona.
+Future production development can include:
 
-Show actual revenue versus expected trend.
+* Role-based access control
+* Data lineage
+* Authentication
+* Monitoring
+* Runtime telemetry
+* Model-call monitoring
+* Cost monitoring
+* Continuous evaluation
+* Confidence calibration
 
-Demonstrate the flagged anomaly.
+---
 
-Open Correlate and show supporting evidence.
+## 15. Why This Architecture?
 
-Explain the confidence level.
+Each pipeline stage is implemented as a separate module.
 
-Generate the executive brief.
+This makes the system:
 
-Show persona-specific recommendations.
+* Easy to understand
+* Independently testable
+* Easy to demonstrate
+* Easy to extend
+* Easy to replace individual components
 
-Demonstrate offline fallback if required.
+The narration system is also designed to avoid inventing explanations when evidence is insufficient.
 
-15. Round 2 Alignment
+When evidence is ambiguous, InsightForge can explicitly communicate uncertainty instead of guessing the cause.
 
-The prototype demonstrates the BusinessIntelligence.ai direction through:
+---
 
-KPI movement detection
+## 16. Round 2 Alignment
 
-Cross-source evidence correlation
+The prototype demonstrates the Business Intelligence solution through:
 
-Persona-aware narratives
+* **KPI Movement Detection**
+* **Cross-source Evidence Correlation**
+* **Confidence Handling**
+* **Action Recommendations**
+* **Persona-aware Narratives**
+* **AI-powered Business Narration**
+* **Executive Brief Generation**
 
-Confidence handling
+The architecture follows the core solution:
 
-Action recommendations
+**Detect → Correlate → Recommend → Narrate**
 
-Further validation/extension areas include multiple connected KPIs/data sources, semantic definitions, sparse-history handling, role-based security, lineage, LLM/non-LLM separation, and runtime telemetry.
+---
 
-Repository
+## 17. Demo Incident
 
-https://github.com/nanthini-ds/insightforge-kpi-storytelling-engine
+Example:
+
+**Region:** West
+**SKU:** SKU-2291
+**Incident:** 3-day stockout
+**Additional Signal:** Competitor promotion
+
+InsightForge identifies the KPI movement, searches related evidence, evaluates the available signals, and produces a business explanation with recommended next actions.
+
+---
+
+## 18. Future Scope
+
+Future versions can support:
+
+* Real-time KPI monitoring
+* Multiple connected business KPIs
+* Enterprise data sources
+* Advanced semantic search
+* Automated alerting
+* Analyst feedback learning
+* Stronger security and governance
+* Production-scale deployment
+
+---
+
+## 19. Project Summary
+
+InsightForge demonstrates how AI can transform raw KPI movements into **evidence-grounded business stories and actionable decisions**.
+
+Instead of simply telling a business user that:
+
+> "Revenue decreased."
+
+InsightForge aims to answer:
+
+> **"What changed, what evidence supports the explanation, how confident are we, and what should we do next?"**
+
+**Detect → Correlate → Recommend → Narrate**
